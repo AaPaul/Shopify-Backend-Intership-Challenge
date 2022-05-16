@@ -8,8 +8,4 @@ urlpatterns = [
     path('inventory-create', views.inventoryCreate, name='inventory-create'),
     path('inventory-update/<str:pk>/', views.inventoryUpdate, name='inventory-update'),
     path('inventory-delete/<str:pk>/', views.inventoryDelete, name='inventory-delete'),
-
-
 ]
-
-
