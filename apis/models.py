@@ -6,9 +6,6 @@ from django.db import models
 class Warehouse(models.Model):
     name = models.CharField(max_length=200)
     location = models.TextField(null=False, blank=False)
-
-    # def __str__(self) -> str:
-    #     return self.name
     
         
 
