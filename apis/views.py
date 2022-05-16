@@ -61,3 +61,45 @@ def inventoryDelete(request, pk):
 	return Response('Inventory succsesfully delete!')
 
 
+
+
+
+@api_view(['GET'])
+def warehouseList(request):
+	WarehouseS = Warehouse.objects.all().order_by('-id')
+	serializer = WarehouseSerializer(WarehouseS, many=True)
+	return Response(serializer.data)
+
+@api_view(['GET'])
+def warehouseDetail(request, pk):
+	WarehouseS = Warehouse.objects.get(id=pk)
+	serializer = WarehouseSerializer(WarehouseS, many=False)
+	return Response(serializer.data)
+
+
+@api_view(['POST'])
+def warehouseCreate(request):
+	serializer = WarehouseSerializer(data=request.data)
+
+	if serializer.is_valid():
+		serializer.save()
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def warehouseUpdate(request, pk):
+	warehouse = Warehouse.objects.get(id=pk)
+	serializer = WarehouseSerializer(instance=warehouse, data=request.data)
+
+	if serializer.is_valid():
+		serializer.save()
+
+	return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+def warehouseDelete(request, pk):
+	warehouse = Warehouse.objects.get(id=pk)
+	warehouse.delete()
+
+	return Response('Warehouse succsesfully delete!')

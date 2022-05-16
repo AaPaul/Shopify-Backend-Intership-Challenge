@@ -16,6 +16,6 @@ class Warehouse(models.Model):
 class Inventory(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
-    warehouse = models.ForeignKey('Warehouse', on_delete=models.CASCADE, null=False, blank=False)
+    warehouse = models.ForeignKey('Warehouse', on_delete=models.RESTRICT, null=False, blank=False)
 
 
