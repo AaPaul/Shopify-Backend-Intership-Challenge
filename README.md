@@ -32,7 +32,7 @@ Based on my understanding, I would like to create two tables in the database to 
 ## Feature tests
 Here I use Postman as my API test platform.
 
-Before we starting the test, we need to add some initial data into the database. Otherwise, the list of all data would be null, althought there would be no error. I provide some data, as shown below.
+Before we starting the test, we need to check if you have the required database which should be included in the project. If not, we are supposed to add some initial data into the database. Otherwise, the list of all data would be null, althought there would be no error. I provide some data for initialization, as shown below.
 - For Inventory
 ```
 [
@@ -120,14 +120,35 @@ The url for deleting the item is `http://127.0.0.1:8000/inventory-delete/<str:pk
 
 ### Warehouses part
 It also includes the basic CRUD functionality. The difference is in the deleting part. Therefore, I would like to only introduce this part. Other test results would be shown as follows.
-#### 2. View of a list of all items
-The url for get all warehouses items is `http://127.0.0.1:8000/warehouse-list`
+#### 1. Delete the warehouse
+In this part, we are supposed to consider the connection between Warehouse and Inventory. Logically, we are not allowed to delete the warehouse instance which are playing the FK in the Inventory. Therefore, I add an extra error handler for this function.
+
+- If no references on this instance, we can delete it successfully, like the result shows below.
+
+![](./imgs/warehouse_delete_successfully.png)
+
+- If this instance is referenced by inventory items, we cannot delete it. It will return the message with the Restriction error.
+
+![](./imgs/warehouse_delete_restriction.png)
+
+- If the required warehouse does not existed, we also cannot excute this process. It will return DoesNotExisted error.
+
+![](./imgs/warehouse_delete_no_recored.png)
+
+#### 2. View of a list of all warehouse
+The url for get all warehouses items is `http://127.0.0.1:8000/warehouse-list`.
+
 ![](./imgs/warehouses_list.png)
-#### 3. Create warehouse
+
+#### 3. Create a warehouse
 The url for creating is `http://127.0.0.1:8000/warehouse-create`.
+
 ![](./imgs/warehouse_create.png)
-#### 4. Update warehouse
-![](./imgs/wa)
+
+#### 4. Update a warehouse
+The url for updating is `http://127.0.0.1:8000/warehouse-update/<str:pk>/`.
+
+![](./imgs/warehouse_updated.png)
 
 ## Local deployment
 This project, as I mentioned above, is based on Python. Therefore, the first step of running it locally is to set up a Python environment.
