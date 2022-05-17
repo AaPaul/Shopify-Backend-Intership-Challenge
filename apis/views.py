@@ -2,10 +2,12 @@ import imp
 from django.shortcuts import render
 
 # Create your views here.
-
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import RestrictedError
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+
 from .serializers import InventorySerializer, WarehouseSerializer
 
 from .models import Inventory, Warehouse
@@ -14,16 +16,16 @@ from .models import Inventory, Warehouse
 @api_view(['GET'])
 def apisOverview(request):
 	api_urls = {
-		'InventoryList':'/Inventory-list/',
-		'Detail View':'/Inventory-detail/<str:pk>/',
-		'InventoryCreate':'/Inventory-create/',
-		'InventoryUpdate':'/Inventory-update/<str:pk>/',
-		'InventoryDelete':'/Inventory-delete/<str:pk>/',
-		'WarehouseList':'/Warehouse-list/',
-		'Detail View':'/Warehouse-detail/<str:pk>/',
-		'WarehouseCreate':'/Warehouse-create/',
-		'WarehouseUpdate':'/Warehouse-update/<str:pk>/',
-		'WarehouseDelete':'/Warehouse-delete/<str:pk>/',
+		'InventoryList':'/inventory-list/',
+		'Detail View':'/inventory-detail/<str:pk>/',
+		'InventoryCreate':'/inventory-create/',
+		'InventoryUpdate':'/inventory-update/<str:pk>/',
+		'InventoryDelete':'/inventory-delete/<str:pk>/',
+		'WarehouseList':'/warehouse-list/',
+		'Detail View':'/warehouse-detail/<str:pk>/',
+		'WarehouseCreate':'/warehouse-create/',
+		'WarehouseUpdate':'/warehouse-update/<str:pk>/',
+		'WarehouseDelete':'/warehouse-delete/<str:pk>/',
 		}
 
 	return Response(api_urls)
@@ -36,6 +38,15 @@ def inventoryList(request):
 		serializer = InventorySerializer(inventorys, many=True)
 		status_code = status.HTTP_200_OK
 		return Response(data=serializer.data, status=status_code)
+	
+	except ObjectDoesNotExist:
+		status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+		resp = {
+			'Message': "data does not exsited",
+			'status': False
+			}
+		return Response(data=resp, status=status_code)
+
 	except:
 		status_code = status.HTTP_400_BAD_REQUEST
 		resp = {
@@ -52,10 +63,17 @@ def inventoryDetail(request, pk):
 		serializer = InventorySerializer(inventorys, many=False)
 		
 		return Response(data=serializer.data, status=status.HTTP_200_OK)
-	except:
+	except ObjectDoesNotExist:
+		status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+		resp = {
+			'Message': "data does not exsited",
+			'status': False
+			}
+		return Response(data=resp, status=status_code)
+	except :
 		status_code = status.HTTP_400_BAD_REQUEST
 		resp = {
-			'Message': "ERROR in retriving data",
+			'Message': "Error in retrieving data",
 			'status': False
 			}
 		return Response(data=resp, status=status_code)
@@ -86,20 +104,20 @@ def inventoryCreate(request):
 			status_code = status.HTTP_200_OK
 
 			resp = {
-				'message': "Inventory saved successfully",
+				'message': "Inventory created successfully",
 				'data': serializer.data,
 				'status': True}
 		else:
 			status_code = status.HTTP_400_BAD_REQUEST
 			resp = {
-				'message': "Inventory saved failed",
+				'message': "Inventory created failed",
 				'status': False}
 		return Response(data=resp, status=status_code)
 
 	except:
 		status_code = status.HTTP_400_BAD_REQUEST
 		resp = {
-			'message': "Inventory saved failed",
+			'message': "Inventory created failed",
 			'status': False}
 		return Response(data=resp, status=status_code)
 
@@ -146,6 +164,13 @@ def inventoryUpdate(request, pk):
 				}
 			return Response(data=resp, status=status_code)
 
+		except ObjectDoesNotExist:
+			status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+			resp = {
+				'message': "Inventory instance does not existed",
+				'status': False}
+			return Response(data=resp, status=status_code)
+
 		except:
 			status_code = status.HTTP_400_BAD_REQUEST
 			resp = {
@@ -168,10 +193,20 @@ def inventoryDelete(request, pk):
 			'status': True}
 		return Response(data=resp, status=status_code)
 
+
+	except ObjectDoesNotExist:
+		status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+		resp = {
+			'message': "Inventory data does not existed",
+			'status': False
+		}
+
+		return Response(data=resp, status=status_code)
+	
 	except:
 		status_code = status.HTTP_400_BAD_REQUEST
 		resp = {
-			'message': "Inventory deleted Failed",
+			'message': "Error in the process of deleting",
 			'status': False
 		}
 
@@ -182,10 +217,18 @@ def inventoryDelete(request, pk):
 @api_view(['GET'])
 def warehouseList(request):
 	try:
-		WarehouseS = Warehouse.objects.all().order_by('-id')
-		serializer = WarehouseSerializer(WarehouseS, many=True)
+		warehouse = Warehouse.objects.all().order_by('-id')
+		serializer = WarehouseSerializer(warehouse, many=True)
 		status_code = status.HTTP_200_OK
 		return Response(serializer.data, status=status_code)
+
+	except ObjectDoesNotExist:
+		status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+		resp = {
+			'Message': "No data existed",
+			'status': False
+			}
+		return Response(data=resp, status=status_code)
 
 	except:
 		status_code = status.HTTP_400_BAD_REQUEST
@@ -200,18 +243,24 @@ def warehouseList(request):
 @api_view(['GET'])
 def warehouseDetail(request, pk):
 	try:
-		WarehouseS = Warehouse.objects.get(id=pk)
-		serializer = WarehouseSerializer(WarehouseS, many=False)
+		warehouse = Warehouse.objects.get(id=pk)
+		serializer = WarehouseSerializer(warehouse, many=False)
 		return Response(serializer.data)
 	
-	except:
+	except ObjectDoesNotExist:
+		status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+		resp = {
+			'Message': "Data does not existed",
+			'status': False
+			}
+		return Response(data=resp, status=status_code)
+	except :
 		status_code = status.HTTP_400_BAD_REQUEST
 		resp = {
 			'Message': "ERROR in retriving data",
 			'status': False
 			}
 		return Response(data=resp, status=status_code)
-
 
 # Add a new warehouse
 @api_view(['POST'])
@@ -237,13 +286,13 @@ def warehouseCreate(request):
 			serializer.save()
 			status_code = status.HTTP_200_OK
 			resp = {
-				'message': "Warehouse saved successfully",
+				'message': "Warehouse created successfully",
 				'data': serializer.data,
 				'status': True}
 		else:
 			status_code = status.HTTP_400_BAD_REQUEST
 			resp = {
-				'message': "Warehouse saved failed",
+				'message': "Warehouse created failed",
 				'status': False}
 
 		return Response(data=resp, status=status_code)
@@ -251,7 +300,7 @@ def warehouseCreate(request):
 	except:
 		status_code = status.HTTP_400_BAD_REQUEST
 		resp = {
-			'message': "Inventory saved failed",
+			'message': "Warehouse created failed",
 			'status': False}
 		return Response(data=resp, status=status_code)
 
@@ -264,6 +313,15 @@ def warehouseUpdate(request, pk):
 			serializer = WarehouseSerializer(warehouse, many=False)
 			status_code = status.HTTP_200_OK
 			return Response(data=serializer.data, status=status_code)
+
+		except ObjectDoesNotExist:
+			status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+			resp = {
+				'message':"No data existed",
+				'status':False
+			}
+
+			return Response(data=resp, status=status_code)
 
 		except:
 			status_code = status.HTTP_400_BAD_REQUEST
@@ -294,10 +352,17 @@ def warehouseUpdate(request, pk):
 					'status': False}
 			return Response(data=resp, status=status_code)
 
+		except ObjectDoesNotExist:
+			status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+			resp = {
+				'message': "Queried warehouse instance does not exsit",
+				'status': False}
+			return Response(data=resp, status=status_code)
+
 		except:
 			status_code = status.HTTP_400_BAD_REQUEST
 			resp = {
-				'message': "Warehouse updated failed",
+				'message': "Warehouse created failed",
 				'status': False}
 			return Response(data=resp, status=status_code)
 
@@ -315,11 +380,29 @@ def warehouseDelete(request, pk):
 		}
 		return Response(data=resp, status=status_code)
 
-	except:
+	except RestrictedError:
 		status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 		resp = {
-			'message': "Warehouse deleted Failed",
+			'message': "Instance of Warehouse deleted Faile as it is referenced through restricted foreign keys",
 			'status': False
 		}
 
 		return Response(data=resp, status=status_code)
+	except ObjectDoesNotExist:
+		status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+		resp = {
+			'message': "Warehouse data does not exist",
+			'status': False
+		}
+
+		return Response(data=resp, status=status_code)
+	except:
+		status_code = status.HTTP_400_BAD_REQUEST
+		resp = {
+			'message': "Error in the process of deleting",
+			'status': False
+		}
+
+		return Response(data=resp, status=status_code)
+
+		
