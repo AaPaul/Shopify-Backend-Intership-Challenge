@@ -16,14 +16,14 @@ from .models import Inventory, Warehouse
 @api_view(['GET'])
 def apisOverview(request):
 	api_urls = {
-		'InventoryList':'/inventory-list/',
+		'InventoryList':'/inventory-list',
 		'Detail View':'/inventory-detail/<str:pk>/',
-		'InventoryCreate':'/inventory-create/',
+		'InventoryCreate':'/inventory-create',
 		'InventoryUpdate':'/inventory-update/<str:pk>/',
 		'InventoryDelete':'/inventory-delete/<str:pk>/',
-		'WarehouseList':'/warehouse-list/',
+		'WarehouseList':'/warehouse-list',
 		'Detail View':'/warehouse-detail/<str:pk>/',
-		'WarehouseCreate':'/warehouse-create/',
+		'WarehouseCreate':'/warehouse-create',
 		'WarehouseUpdate':'/warehouse-update/<str:pk>/',
 		'WarehouseDelete':'/warehouse-delete/<str:pk>/',
 		}
